@@ -7,9 +7,6 @@ public class Game {
 		while(isWinner == 0) {
 			Move.move(b);
 		}
-		//b.movement("D6", "E5", 5);
-		//b.movement("3C", "D4", -5);
-		//b.movement("E5", "C3", 5);
 	}
 
 }
