@@ -99,12 +99,12 @@ public class Move {
 	}
 	
 	
-	static void move(Board b) {
+	// Human - human game
+	static void playHuman(Board b) {
 		// '5' indicates White player's turn, '-5' - the Black one.
 		b.printBoard();
 		
 		AI.stateValue(b);
-		AI.bestAttackPower(b);
 		
 		if (b.turn == 5)
 			System.out.println("\nPlayer A, your turn!");
@@ -175,6 +175,109 @@ public class Move {
 				b.turn *= -1;
 			}
 		}
+		
+		b.turn *= -1;
+	}
+	
+	
+	// Computer - human game.
+	static void playComputer(Board b) {
+		// '5' indicates White player's turn, '-5' - the Black one.
+		b.printBoard();
+		
+		AI.stateValue(b);
+		
+		if (b.turn == -5) {
+			
+			System.out.println("\nPlayer B, your turn!");
+			Scanner scan= new Scanner(System.in);
+			
+			System.out.println("\nWhich pawn do you want to move?");
+			String origin = scan.nextLine();
+			
+			if (origin.equals("undo")) {
+				undo(b);
+				return;
+			}
+		
+			// English correctly?
+			System.out.println("\nWhich position would you like to jump on?");
+			String dest = scan.nextLine();
+			
+			if (dest.equals("undo")) {
+				undo(b);
+				return;
+			}
+			
+			int xyA[] = new int[2];
+			int xyB[] = new int[2];
+			xyA = transformDesignation(origin);
+			xyB = transformDesignation(dest);
+			
+			int rightMove = checkMoveValidity(b, xyA, xyB);
+			
+			// A movement.
+			if (rightMove == 0 || rightMove == 3) {
+			
+					b.boardState[xyB[0]][xyB[1]] = b.boardState[xyA[0]][xyA[1]];
+					b.boardState[xyA[0]][xyA[1]] = 0;
+					// If it's a jump, then remove the jumped pawn.
+					if (rightMove == 3) {
+						b.boardState[(xyB[0]+xyA[0])/2][(xyB[1]+xyA[1])/2] = 0;
+						if (b.turn == 5)
+							System.out.println("Point for A player!");
+						else
+							System.out.println("Point for B player!");
+					}
+					// If it's the last row, then a pawn (man) becomes a king.
+					if (xyB[0] == 7)
+						b.boardState[xyB[0]][xyB[1]] = 2;
+				
+				// A movement is sent to the movesStorage.
+				storeMove(b);
+			}
+			else 
+				wrongMove(b);
+			
+			// If it was a jump (an attack), then ask the player if he wants to continue jumping.
+			if (rightMove == 3) {
+				
+				System.out.println("\nWould you like to continue jumping (a multiple jump)?");
+				System.out.println("Please answer 'yes' or 'not':");
+				String multipleJump = scan.nextLine();
+				
+				// Undo function for this situation doesn't work yet.
+				if (multipleJump.equals("yes")) {
+					b.printBoard();
+					b.turn *= -1;
+				}
+			}
+		}
+		
+		// A computer move.
+		else
+		{
+			int[] bestMove;
+			bestMove = AI.bestAttackPower(b);
+			
+			System.out.println(bestMove[0] + ", " + bestMove[1] + ":  power: " + bestMove[2]);
+			
+			int xyA[] = new int[2];
+			int xyB[] = new int[2];
+			
+			xyA[0] = bestMove[0];
+			xyA[1] = bestMove[1];
+			
+			// A movement.		
+			b.boardState[xyB[0]][xyB[1]] = b.boardState[xyA[0]][xyA[1]];
+			b.boardState[xyA[0]][xyA[1]] = 0;
+					
+			// A movement is sent to the movesStorage.
+			storeMove(b);
+			
+		}
+		
+		
 		
 		b.turn *= -1;
 	}
