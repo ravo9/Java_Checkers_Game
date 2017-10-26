@@ -54,7 +54,7 @@ public class AI {
 		try {
 			// There is an attack opportunity on the right front-side.
 			if (b.boardState[x-1][y+1] == 1 && b.boardState[x-2][y+2] == 0) { 
-				pathRightFront = attackPathFinder(b, x+2, y+2);
+				pathRightFront = attackPathFinder(b, x-2, y+2);
 				pathRightFront.add(thisPos);
 			}
 			else
@@ -201,5 +201,31 @@ public class AI {
 		
 		return acc;
 	}
+	
+	// A function that returns a value of the attack potential and also takes an opponent's potential attack into account.
+		static int checkAttackPotentialCarefully(Board b, int x, int y) {
+		
+		int acc = 0;
+		
+			// Only A player is taken into account now.
+				
+				try {
+					if (b.boardState[x-1][y-1] == 1 && b.boardState[x-2][y-2] == 0) {
+						acc += 2;
+						acc += checkAttackPotentialCarefully(b, x-2, y-2);
+					}
+				}
+				catch (Exception e) {}
+				
+				try {
+				    if (b.boardState[x-1][y+1] == 1 && b.boardState[x-2][y+2] == 0) {
+						acc += 2;
+						acc += checkAttackPotentialCarefully(b, x-2, y+2);
+					}
+				}
+				catch (Exception e) {}
+			
+			return acc;
+		}
 	
 }

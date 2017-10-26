@@ -269,9 +269,15 @@ public class Move {
 			xyB[0] = b.computerAttackPath.getFirst()[0];
 			xyB[1] = b.computerAttackPath.getFirst()[1];
 			
+			// Debug
+			System.out.println("A starting position: "+ xyA[0]+", "+ xyA[1]);
+			System.out.println("A final position: "+ xyB[0]+", "+ xyB[1]);
+			System.out.println("A number of fields in the path: "+ b.computerAttackPath.size());
+			
 			// A movement.		
 			b.boardState[xyB[0]][xyB[1]] = b.boardState[xyA[0]][xyA[1]];
 			b.boardState[xyA[0]][xyA[1]] = 0;
+		
 			
 			// Remove all jumped pawns.
 				// If there was any attack.
@@ -280,8 +286,8 @@ public class Move {
 				int attacksNumber = b.computerAttackPath.size()-1;
 				
 				for (int i=0; i<attacksNumber; i++) {
-					int jumpedPawnX = Math.abs(b.computerAttackPath.get(i)[0] + b.computerAttackPath.get(i+1)[0])/2;
-					int jumpedPawnY = Math.abs(b.computerAttackPath.get(i)[1] + b.computerAttackPath.get(i+1)[1])/2;
+					int jumpedPawnX = (b.computerAttackPath.get(i)[0] + b.computerAttackPath.get(i+1)[0])/2;
+					int jumpedPawnY = (b.computerAttackPath.get(i)[1] + b.computerAttackPath.get(i+1)[1])/2;
 					b.boardState[jumpedPawnX][jumpedPawnY] = 0;
 					System.out.println("\n ----------------------------------------------- \n");
 					System.out.println("Point for the Computer Player!");
@@ -291,7 +297,6 @@ public class Move {
 			// A movement is sent to the movesStorage.
 				storeMove(b);
 				b.computerAttackPath.clear();
-			
 		}
 		
 
