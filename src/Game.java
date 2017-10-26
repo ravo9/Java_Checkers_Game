@@ -5,7 +5,7 @@ public class Game {
 		int isWinner = 0;
 		Board b = new Board();
 		while(isWinner == 0) {
-			Move.playHuman(b);
+			Move.playComputer(b);
 		}
 	}
 

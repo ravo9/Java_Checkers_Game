@@ -4,6 +4,8 @@ public class Board{
 	
 	int[][] boardState;
 	int turn;
+	
+	public LinkedList<int[]> computerAttackPath = new LinkedList<int[]>();
 	static LinkedList<int[][]> movesStorage = new LinkedList<int[][]>();
 	
 	Board(){

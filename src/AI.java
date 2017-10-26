@@ -24,36 +24,65 @@ public class AI {
 		System.out.println("\nA state: "+valueA);
 		System.out.println("B state: "+valueB+"\n");
 	}
+
 	
-	
-	static void computerMove(Board b) {
-	// In this moment the idea is to use funtion that is looking for the most powerful attack/move
-	// and order computer to perform that move.
-	
-	// Now there are only functions calculating that values for player A, so the real player
-	// will be indicated as B.
-	
-	int[] bestMove;
-	bestMove = bestAttackPower(b);
-	
-	//System.out.println(bestPawnRow + ", " + bestPawnCol + ":  power: " + biggestPower);
-	
-	
+	// A function that returns an attack best path (position by position).
+	static LinkedList<int[]> attackPathFinder(Board b, int x, int y) {
+		
+		LinkedList<int[]> pathLeftFront = new LinkedList<int[]>();
+		LinkedList<int[]> pathRightFront = new LinkedList<int[]>();
+
+		int thisPos[] = new int[2];
+		thisPos[0] = x;
+		thisPos[1] = y;		
+		
+		try {
+			// There is an attack opportunity on the left front-side.
+			if (b.boardState[x-1][y-1] == 1 && b.boardState[x-2][y-2] == 0) { 
+				pathLeftFront = attackPathFinder(b, x-2, y-2);
+				pathLeftFront.add(thisPos);
+			}
+			else
+				pathLeftFront.add(thisPos);
+		}
+		catch (Exception e) {
+				pathLeftFront.add(thisPos);
+		}
+		
+		
+		// Right side check.
+		try {
+			// There is an attack opportunity on the right front-side.
+			if (b.boardState[x-1][y+1] == 1 && b.boardState[x-2][y+2] == 0) { 
+				pathRightFront = attackPathFinder(b, x+2, y+2);
+				pathRightFront.add(thisPos);
+			}
+			else
+				pathRightFront.add(thisPos);
+		}
+		catch (Exception e) {
+				pathRightFront.add(thisPos);
+		}
+		
+		// Proceed only the longer list (left or right). Longer list means more jumps.
+		if (pathLeftFront.size() >= pathRightFront.size()) 
+			return pathLeftFront;
+		else 
+			return pathRightFront;
 	}
 	
 	
+	// A function that returns a number and coordinates of the pawn, which has the biggest attack potential.
+	// This function also assigns a path of the attack to the board's array 'computerAttackPath'.
 	static int[] bestAttackPower(Board b) {
-		
-		int[] result = new int [5];
 		
 		int biggestPower = -1;
 		int bestPawnRow = -1;
 		int bestPawnCol = -1;
-		int lastPosRow = -1;
-		int lastPosCol = -1;
 		
-		//LinkedList<int[]> allPawnPowers = new LinkedList<int[]>();
+		int[] results = new int[3];
 		int[] pawnPower = new int[6];
+		
 		
 		for (int i=0; i<8; i++) {
 			for (int k=0; k<8; k++) {
@@ -83,8 +112,8 @@ public class AI {
 						// There is an attack opportunity on the left front-side.
 						if (b.boardState[i-1][k-1] == 1 && b.boardState[i-2][k-2] == 0) {
 							pawnPower[4] = 2;
-							// Check if it is a multi jump.
-							pawnPower[4] += multiJumpCheck(b, i-2, k-2);
+							// Check if it is a multijump.
+							pawnPower[4] += checkAttackPotential(b, i-2, k-2);
 						}	
 					}
 					catch (Exception e) {
@@ -96,7 +125,7 @@ public class AI {
 						if (b.boardState[i-1][k+1] == 1 && b.boardState[i-2][k+2] == 0) {
 							pawnPower[5] = 2;
 							// Check if it is a multi jump.
-							pawnPower[5] += multiJumpCheck(b, i-2, k+2);
+							pawnPower[5] += checkAttackPotential(b, i-2, k+2);
 						}
 					}
 					catch (Exception e) {
@@ -119,31 +148,45 @@ public class AI {
 			}
 		}
 		
+		// If the attack is possible.
+		if (biggestPower > 1) {
+			b.computerAttackPath = attackPathFinder(b, bestPawnRow, bestPawnCol);
+		}
+		// If the attack is not possible, but the move into left side is.
+		else if (bestPawnCol != 0 && b.boardState[bestPawnRow - 1][bestPawnCol - 1] == 0) {
+			int[] nextMove = new int[2];
+			nextMove[0] = bestPawnRow - 1;
+			nextMove[1] = bestPawnCol - 1;
+			b.computerAttackPath.addFirst(nextMove);	
+		}
+		// If the attack and move into left side are not possible, but the move into right side is.
+		else if (bestPawnCol != 7 && b.boardState[bestPawnRow - 1][bestPawnCol + 1] == 0) {
+			int[] nextMove = new int[2];
+			nextMove[0] = bestPawnRow - 1;
+			nextMove[1] = bestPawnCol + 1;
+			b.computerAttackPath.addFirst(nextMove);	
+		}
 		
-		// Now I should get the coordinates of the first pawn with the value equals
-		// to the biggest attack power.
+		results[0] = bestPawnRow;	
+		results[1] = bestPawnCol;
+		results[2] = biggestPower;
 		
-		
-		result[0] = bestPawnRow;
-		result[1] = bestPawnCol;
-		result[2] = biggestPower;
-		
-		return result;
+		return results;
 		
 	}
 	
 	
-	// A function that checks if the attack possibility is a multi jump or a single attack.
-	static int multiJumpCheck(Board b, int x, int y) {
+	// A function that returns a value of the attack potential.
+	static int checkAttackPotential(Board b, int x, int y) {
 	
 	int acc = 0;
 	
-		// Only A player now is taken into an account.
+		// Only A player is taken into account now.
 			
 			try {
 				if (b.boardState[x-1][y-1] == 1 && b.boardState[x-2][y-2] == 0) {
 					acc += 2;
-					acc += multiJumpCheck(b, x-2, y-2);
+					acc += checkAttackPotential(b, x-2, y-2);
 				}
 			}
 			catch (Exception e) {}
@@ -151,20 +194,12 @@ public class AI {
 			try {
 			    if (b.boardState[x-1][y+1] == 1 && b.boardState[x-2][y+2] == 0) {
 					acc += 2;
-					acc += multiJumpCheck(b, x-2, y+2);
+					acc += checkAttackPotential(b, x-2, y+2);
 				}
 			}
 			catch (Exception e) {}
 		
 		return acc;
-	}
-	
-	
-	// A function that return a row and column numbers of the final postion
-	// of the most powerful move.
-	static void findLastPos() {
-		
-		;
 	}
 	
 }

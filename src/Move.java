@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.LinkedList;
 
 public class Move {
 	
@@ -104,8 +105,6 @@ public class Move {
 		// '5' indicates White player's turn, '-5' - the Black one.
 		b.printBoard();
 		
-		AI.stateValue(b);
-		
 		if (b.turn == 5)
 			System.out.println("\nPlayer A, your turn!");
 		else
@@ -182,10 +181,11 @@ public class Move {
 	
 	// Computer - human game.
 	static void playComputer(Board b) {
+		
+		System.out.println("\n ----------------------------------------------- \n");
+		
 		// '5' indicates White player's turn, '-5' - the Black one.
 		b.printBoard();
-		
-		AI.stateValue(b);
 		
 		if (b.turn == -5) {
 			
@@ -200,7 +200,6 @@ public class Move {
 				return;
 			}
 		
-			// English correctly?
 			System.out.println("\nWhich position would you like to jump on?");
 			String dest = scan.nextLine();
 			
@@ -260,25 +259,42 @@ public class Move {
 			int[] bestMove;
 			bestMove = AI.bestAttackPower(b);
 			
-			System.out.println(bestMove[0] + ", " + bestMove[1] + ":  power: " + bestMove[2]);
-			
 			int xyA[] = new int[2];
 			int xyB[] = new int[2];
 			
 			xyA[0] = bestMove[0];
 			xyA[1] = bestMove[1];
 			
+			
+			xyB[0] = b.computerAttackPath.getFirst()[0];
+			xyB[1] = b.computerAttackPath.getFirst()[1];
+			
 			// A movement.		
 			b.boardState[xyB[0]][xyB[1]] = b.boardState[xyA[0]][xyA[1]];
 			b.boardState[xyA[0]][xyA[1]] = 0;
-					
+			
+			// Remove all jumped pawns.
+				// If there was any attack.
+			if (b.computerAttackPath.size() > 1) {
+				
+				int attacksNumber = b.computerAttackPath.size()-1;
+				
+				for (int i=0; i<attacksNumber; i++) {
+					int jumpedPawnX = Math.abs(b.computerAttackPath.get(i)[0] + b.computerAttackPath.get(i+1)[0])/2;
+					int jumpedPawnY = Math.abs(b.computerAttackPath.get(i)[1] + b.computerAttackPath.get(i+1)[1])/2;
+					b.boardState[jumpedPawnX][jumpedPawnY] = 0;
+					System.out.println("\n ----------------------------------------------- \n");
+					System.out.println("Point for the Computer Player!");
+				}
+			}
+			
 			// A movement is sent to the movesStorage.
-			storeMove(b);
+				storeMove(b);
+				b.computerAttackPath.clear();
 			
 		}
 		
-		
-		
+
 		b.turn *= -1;
 	}
 	
