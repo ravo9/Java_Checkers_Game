@@ -1,12 +1,19 @@
+import java.util.LinkedList;
+
 public class Game {
 
+	static int[][] boardState;
+	static LinkedList<int[][]> movesStorage = new LinkedList<int[][]>();
+	
+	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+		Board.newBoard();
 		int isWinner = 0;
-		Board b = new Board();
+		
 		while(isWinner == 0) {
-			Move.playComputer(b);
+			Movement.playerAMove();
+			Movement.playerComputerMove();
 		}
 	}
-
 }
