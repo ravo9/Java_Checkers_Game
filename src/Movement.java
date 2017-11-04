@@ -13,7 +13,7 @@ public class Movement {
 	static int[] transformDesignation(String pos) {
 		int xy[] = new int[2];
 			
-		for (int i=0; i<8; i++) 
+		for (int i=1; i<9; i++) 
 			if (pos.contains(Integer.toString(i))) xy[0] = i - 1;
 			
 		String letters[] = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -101,18 +101,27 @@ public class Movement {
 		System.out.println("\nPlayer A, your turn!\n");
 		Board.printBoard();
 		Scanner scan= new Scanner(System.in);
-		System.out.println("\nWhich pawn do you want to move?");
-		String origin = scan.nextLine();
-		if (origin.equals("undo")) {
-			undo();
-			playerBMove();
-			return;
+		String origin = "";
+		
+		if (Game.multipleJumpFlag == 0) {
+			System.out.println("\nWhich pawn do you want to move?");
+			origin = scan.nextLine();
+			if (origin.equals("undo")) {
+				undo();
+				return;
+			}
 		}
+		else if (Game.multipleJumpFlag == 1) {
+			origin += Game.multipleJumpPawnBuffor[0];
+			origin += Game.multipleJumpPawnBuffor[1];
+			Game.multipleJumpFlag = 0;
+			Game.multipleJumpPawnBuffor = null;
+		}
+		
 		System.out.println("\nWhich position would you like to jump on?");
 		String dest = scan.nextLine();
 		if (dest.equals("undo")) {
 			undo();
-			playerBMove();
 			return;
 		}
 		System.out.println("\n-------------------------");
@@ -135,7 +144,7 @@ public class Movement {
 			// If it's a jump, then remove the jumped pawn.
 			if (rightMove == 3) {
 				Game.boardState[(xyB[0]+xyA[0])/2][(xyB[1]+xyA[1])/2] = 0;
-				System.out.println("Human Player achieved a point!");
+				System.out.println("Player A achieved a point!");
 				System.out.println("-------------------------");
 			}
 			
@@ -154,12 +163,16 @@ public class Movement {
 				String multipleJump = scan.nextLine();
 				
 				if (multipleJump.equals("yes")) {
+					
+					Game.multipleJumpFlag = 1;
+					Game.multipleJumpPawnBuffor[0] = xyB[0];
+					Game.multipleJumpPawnBuffor[1] = xyB[1];
+			
 					Game.movesStorage.pop();
 					playerAMove();
 				}
 			}			
 		}
-		// A movement storage may cause some problems here.
 		else 
 			playerAMove();
 	}
@@ -169,18 +182,27 @@ public class Movement {
 		System.out.println("\nPlayer B, your turn!\n");
 		Board.printBoard();
 		Scanner scan= new Scanner(System.in);
-		System.out.println("\nWhich pawn do you want to move?");
-		String origin = scan.nextLine();
-		if (origin.equals("undo")) {
-			undo();
-			playerAMove();
-			return;
+		String origin = "";
+		
+		if (Game.multipleJumpFlag == 0) {
+			System.out.println("\nWhich pawn do you want to move?");
+			origin = scan.nextLine();
+			if (origin.equals("undo")) {
+				undo();
+				return;
+			}
 		}
+		else if (Game.multipleJumpFlag == 1) {
+			origin += Game.multipleJumpPawnBuffor[0];
+			origin += Game.multipleJumpPawnBuffor[1];
+			Game.multipleJumpFlag = 0;
+			Game.multipleJumpPawnBuffor = null;
+		}
+		
 		System.out.println("\nWhich position would you like to jump on?");
 		String dest = scan.nextLine();
 		if (dest.equals("undo")) {
 			undo();
-			playerAMove();
 			return;
 		}
 		System.out.println("\n-------------------------");
@@ -202,13 +224,13 @@ public class Movement {
 			// If it's a jump, then remove the jumped pawn.
 			if (rightMove == 3) {
 				Game.boardState[(xyB[0]+xyA[0])/2][(xyB[1]+xyA[1])/2] = 0;
-				System.out.println("Human Player achieved a point!");
+				System.out.println("Player B achieved a point!");
 				System.out.println("-------------------------");
 			}
 			
 			// If it's the last row, then a pawn (man) becomes a king.
 			if (xyB[0] == 7)
-				Game.boardState[xyB[0]][xyB[1]] = -2;
+				Game.boardState[xyB[0]][xyB[1]] = 2;
 			
 			// The move is sent to the movesStorage.
 			storeMove();
@@ -221,8 +243,13 @@ public class Movement {
 				String multipleJump = scan.nextLine();
 				
 				if (multipleJump.equals("yes")) {
-					Game.movesStorage.pop();
-					playerAMove();
+					
+					Game.multipleJumpFlag = 1;
+					Game.multipleJumpPawnBuffor[0] = xyB[0];
+					Game.multipleJumpPawnBuffor[1] = xyB[1];
+					
+					Game.movesStorage.removeLast();
+					playerBMove();
 				}
 			}
 		}
@@ -236,11 +263,13 @@ public class Movement {
 		
 		int startPositionX = c.xyA[0];
 		int startPositionY = c.xyA[1];
+		int finalPositionX = -1;
+		int finalPositionY = -1;
 		
 		// If it is a jump/ multiple jump.
 		if (c.highestPotentialValue > 1) {
-			int finalPositionX = c.attackPath.getFirst()[0];
-			int finalPositionY = c.attackPath.getFirst()[1];
+			finalPositionX = c.attackPath.getFirst()[0];
+			finalPositionY = c.attackPath.getFirst()[1];
 			Game.boardState[finalPositionX][finalPositionY] = Game.boardState[startPositionX][startPositionY];
 			Game.boardState[startPositionX][startPositionY] = 0;
 			
@@ -255,20 +284,27 @@ public class Movement {
 			}
 		}
 		// If it is a single move.
-		else if (c.highestPotentialValue == 1 && c.leftMovePossible == 1) {
-			Game.boardState[startPositionX+1][startPositionY-1] = Game.boardState[startPositionX][startPositionY];
+		else if (c.highestPotentialValue == 1) {
+			finalPositionX = startPositionX+1;
+			if (c.leftMovePossible == 1)
+				finalPositionY = startPositionY-1;
+			else if (c.rightMovePossible == 1)
+				finalPositionY = startPositionY+1;
+			Game.boardState[finalPositionX][finalPositionY] = Game.boardState[startPositionX][startPositionY];
 			Game.boardState[startPositionX][startPositionY] = 0;
 		}
-		else if (c.highestPotentialValue == 1 && c.rightMovePossible == 1) {
-			Game.boardState[startPositionX+1][startPositionY+1] = Game.boardState[startPositionX][startPositionY];
-			Game.boardState[startPositionX][startPositionY] = 0;
-		}
+		
+		// If it's the last row, then a pawn (man) becomes a king.
+		if (finalPositionX == 7)
+			Game.boardState[finalPositionX][finalPositionY] = 2;
 	}
 	
 
 	static void undo() {
 		Game.movesStorage.removeLast();
 	    Game.boardState = Game.movesStorage.getLast();
+	    if (Game.gameMode == "human-computer")
+	    	playerAMove();
 	}
 	
 }
