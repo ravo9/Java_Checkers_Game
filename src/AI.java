@@ -1,10 +1,9 @@
-import java.util.LinkedList;
 
 public class AI {
-
+}
 	
 	// A function that returns a value of the attack potential and also takes an opponent's potential attack into account.
-		static int checkAttackPotentialCarefully(Board b, int x, int y) {
+	/*	static int checkAttackPotentialCarefully(Board b, int x, int y) {
 		
 		int acc = 0;
 		
@@ -46,5 +45,5 @@ public class AI {
 				
 			return acc;
 		}
-	
-}
+	*/
+

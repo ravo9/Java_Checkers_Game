@@ -24,7 +24,9 @@ public class ComputerMove {
 					LinkedList<int[]> thisPawnAttackPath = new LinkedList<int[]>();
 					
 					// Is there any jump opportunity?
-					thisPawnAttackPath = checkAttackPotential(i, k);
+					// Only for hard level.
+					if (Game.level == "hard")
+						thisPawnAttackPath = checkAttackPotential(i, k);
 					
 					// Is there any single move opportunity?
 					try {

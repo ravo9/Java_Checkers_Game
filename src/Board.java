@@ -59,4 +59,29 @@ public class Board{
 		}
 		System.out.println(" A  B  C  D  E  F  G  H");
 	}
+	
+	static String checkIfEnd() {
+		
+		int winnerA = 0;
+		int winnerB = 0;
+		
+		// Are there still both players pawns?
+		winnerA = 1;
+		winnerB = 1;
+		
+		for (int i=0; i<8; i++) {
+			for (int k=0; k<8; k++) 
+				if (Game.boardState[i][k] == 1)
+					winnerA = 0;
+				else if (Game.boardState[i][k] == -1);
+					winnerB = 0;
+		}
+		
+		if (winnerA == 1)
+			return "winnerA";
+		else if (winnerB == 1)
+			return "winnerB";
+		else
+			return "noWinner";
+	}
 }

@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.Scanner;
 
 public class Game {
 
@@ -12,23 +13,123 @@ public class Game {
 	static String gameMode = "human-computer";
 	static LinkedList<int[][]> movesStorage = new LinkedList<int[][]>();
 	
+	// Levels: 'easy', 'hard'.
+	static String level = "";
+	
+	// Modes: '1' indicates human-human game, '2' indicates human-computer game.
+	static int mode = 0;
+	
+	
+	public static void gameMenu() {
+		
+		String isWinner = "noWinner";
+		Scanner scan0 = new Scanner(System.in);
+		String input = "";
+		System.out.println("Welcome to 'Checkers V2 3D 4K'!");
+		System.out.println("Before we'll start a game, please choose a game mode:");
+		
+		while (mode == 0) {
+			System.out.println("Press '1' to play against another human player,");
+			System.out.println(" or press '2' to play against a comuter player.");
+			input = scan0.nextLine();
+			if (input.equals("1"))
+				mode = 1;
+			else if (input.equals("2"))
+				mode = 2;
+			else
+				System.out.println("Input error. Please try again to choose the game mode again.");
+		}
+		
+		if (mode == 2) {
+		
+			System.out.println("Please choose a difficulty level:");
+			
+			while (level == "") {
+				System.out.println("Please type 'easy' or 'hard'.");
+				input = scan0.nextLine();
+				if (input.equals("easy"))
+					level = "easy";
+				else if (input.equals("hard"))
+					level = "hard";
+				else
+					System.out.println("Input error. Please try again to choose the difficulty level.");
+			}
+		}
+		//scan0 = null;
+		//scan0.close();
+		
+		System.out.println("Well done! Let's start the game!!!\n");
+		System.out.println("-------------------------\n");
+		
+		Board.newBoard();
+		
+		
+		// Human-human game
+		if (mode == 1) {
+			while(true) {
+				
+				isWinner = Board.checkIfEnd();
+				if (isWinner == "noWinner")
+					Movement.playerAMove();
+				else
+					break;
+				
+				isWinner = Board.checkIfEnd();
+				if (isWinner == "noWinner")
+					Movement.playerBMove();
+				else
+					break;
+			}		
+		
+			if (isWinner == "winnerA")
+				System.out.println("PLAYER A WON! CONGRATULATIONS!!!");
+			else if (isWinner == "winnerB")
+				System.out.println("PLAYER B WON! CONGRATULATIONS!!!");
+		}
+		
+		
+		// Human-computer game
+		if (mode == 2) {
+			while(true) {
+				
+				isWinner = Board.checkIfEnd();
+				if (isWinner == "noWinner")
+					Movement.playerAMove();
+				else
+					break;
+				
+				isWinner = Board.checkIfEnd();
+				if (isWinner == "noWinner")
+					Movement.playerComputerMove();
+				else
+					break;
+			}		
+		
+			if (isWinner == "winnerA")
+				System.out.println("PLAYER A WON! CONGRATULATIONS!!!");
+			else if (isWinner == "winnerB")
+				System.out.println("COMPUTER PLAYER WON! CONGRATULATIONS!!!");
+		}		
+	}
+	
 	
 	public static void main(String[] args) {
 		
-		Board.newBoard();
-		int isWinner = 0;
+		/*Board.newBoard();
+		String isWinner = Board.checkIfEnd();
 		
 		// Human-computer game
 		
-		while(isWinner == 0) {
+		while(isWinner == "noWinner") {
 			Movement.playerAMove();
 			Movement.playerComputerMove();
 		}
 		
-		// Human-human game
-		/*while(isWinner == 0) {
-			Movement.playerAMove();
-			Movement.playerBMove();
-		}		*/
+		if (isWinner == "winnerA")
+			System.out.println("PLAYER A WON! CONGRATULATIONS!!!");
+		else if (isWinner == "winnerB")
+			System.out.println("PLAYER B WON! CONGRATULATIONS!!!");
+		*/
+		gameMenu();
 	}
 }

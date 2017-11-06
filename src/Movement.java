@@ -100,14 +100,18 @@ public class Movement {
 	static void playerAMove() {
 		System.out.println("\nPlayer A, your turn!\n");
 		Board.printBoard();
-		Scanner scan= new Scanner(System.in);
+		Scanner scan = new Scanner(System.in);
 		String origin = "";
 		
 		if (Game.multipleJumpFlag == 0) {
 			System.out.println("\nWhich pawn do you want to move?");
-			origin = scan.nextLine();
+			try {
+				origin = scan.nextLine();
+			}
+			catch (Exception e) {}
 			if (origin.equals("undo")) {
 				undo();
+				//scan.close();
 				return;
 			}
 		}
@@ -119,7 +123,12 @@ public class Movement {
 		}
 		
 		System.out.println("\nWhich position would you like to jump on?");
-		String dest = scan.nextLine();
+		String dest = "";
+		try {
+			dest = scan.nextLine();
+		}
+		catch (Exception e) {}
+		//scan.close();
 		if (dest.equals("undo")) {
 			undo();
 			return;
@@ -181,7 +190,7 @@ public class Movement {
 	static void playerBMove() {
 		System.out.println("\nPlayer B, your turn!\n");
 		Board.printBoard();
-		Scanner scan= new Scanner(System.in);
+		Scanner scan = new Scanner(System.in);
 		String origin = "";
 		
 		if (Game.multipleJumpFlag == 0) {
@@ -189,6 +198,7 @@ public class Movement {
 			origin = scan.nextLine();
 			if (origin.equals("undo")) {
 				undo();
+				//scan.close();
 				return;
 			}
 		}
@@ -201,6 +211,7 @@ public class Movement {
 		
 		System.out.println("\nWhich position would you like to jump on?");
 		String dest = scan.nextLine();
+		//scan.close();
 		if (dest.equals("undo")) {
 			undo();
 			return;
