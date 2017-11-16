@@ -1,5 +1,4 @@
 
-
 public class Board{
 	
 	static void newBoard(){

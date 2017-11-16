@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.Random;
 
 public class ComputerMove {
 	
@@ -24,8 +25,8 @@ public class ComputerMove {
 					LinkedList<int[]> thisPawnAttackPath = new LinkedList<int[]>();
 					
 					// Is there any jump opportunity?
-					// Only for hard level.
-					if (Game.level == "hard")
+					// Only for medium and hard level.
+					if (Game.level == "medium" || Game.level == "hard")
 						thisPawnAttackPath = checkAttackPotential(i, k);
 					
 					// Is there any single move opportunity?
@@ -41,11 +42,37 @@ public class ComputerMove {
 					}
 					catch (Exception e) {}
 				
-					// What is the final value of this pawn?
+					// What is the final value of this pawn? 3 points per each attack, 1 point per single move.
 					if (thisPawnAttackPath.size() > 1)
-						thisPawnValue = thisPawnAttackPath.size();
+						thisPawnValue = thisPawnAttackPath.size() * 3 - 3;
+						
 					else if (thisLeftMovePossible == 1 || thisRightMovePossible == 1)
 						thisPawnValue = 1;
+					
+					// Consider if the pawn is going to move onto position in front of the enemy pawn.
+					// Only for hard level.
+					// The computer will prefer a risky attack over the single move, but among different attacks will prefer
+					// the safest one.
+					// There is a rule that the player has to attack, if the attack is possible.
+					if (Game.level == "hard") {
+						int lastX = thisPawnAttackPath.getFirst()[0];
+						int lastY = thisPawnAttackPath.getFirst()[1];
+						int dangerousPosition = 0;
+						
+						try {
+							if (Game.boardState[lastX+1][lastY-1] == -1)
+								dangerousPosition = 1;
+						}
+						catch (Exception e) {}
+						try {
+							if (Game.boardState[lastX+1][lastY+1] == -1)
+								dangerousPosition = 1;
+						}
+						catch (Exception e) {}
+						
+						if (dangerousPosition == 1)
+							thisPawnValue -= 0.9;
+					}
 					
 					// If this pawn is better than the previous best one, set it as the best one pawn.
 					if (thisPawnValue > highestPotentialValue) {
@@ -57,6 +84,25 @@ public class ComputerMove {
 						else {
 							rightMovePossible = thisRightMovePossible;
 							leftMovePossible = thisLeftMovePossible;
+						}
+					}	
+					// If this pawn is equally good as the previous best one, use a random number generator
+					// to decide if it should be set as the best one pawn or not.
+					// It allows computer to choose a random pawn (among equally good pawns) instead
+					// of taking always the first one.
+					else if (thisPawnValue == highestPotentialValue) {
+						Random generator = new Random(); 
+						int decision = generator.nextInt(2);
+						if (decision == 1) {
+							highestPotentialValue = thisPawnValue;
+							xyA[0] = i;
+							xyA[1] = k;
+							if (highestPotentialValue > 1)
+								attackPath = thisPawnAttackPath;
+							else {
+								rightMovePossible = thisRightMovePossible;
+								leftMovePossible = thisLeftMovePossible;
+							}
 						}
 					}	
 				}
@@ -104,6 +150,4 @@ public class ComputerMove {
 		else 
 			return tempRightAttackPath;		
 	}
-	
-	
 }

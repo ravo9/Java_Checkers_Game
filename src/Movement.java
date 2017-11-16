@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class Movement {
 	
+	
 	static void storeMove() {
 		int[][]stateCopy = new int[8][8];
 		for (int i = 0; i < 8; i++) 
@@ -9,6 +10,38 @@ public class Movement {
 		Game.movesStorage.add(stateCopy);
 	}
 
+	
+	static void undo() {
+		if (Game.gameMode == "human-human") {
+			Game.revokedMovesStorage.add(Game.movesStorage.getLast());
+			Game.movesStorage.removeLast();
+			Game.boardState = Game.movesStorage.getLast();
+		}
+		else if (Game.gameMode == "human-computer") {
+			Game.revokedMovesStorage.add(Game.movesStorage.getLast());
+			Game.movesStorage.removeLast();
+			Game.revokedMovesStorage.add(Game.movesStorage.getLast());
+			Game.movesStorage.removeLast();
+			Game.boardState = Game.movesStorage.getLast();
+		}
+	}
+	
+	
+	static void redo() {
+		if (Game.gameMode == "human-human") {
+			Game.movesStorage.add(Game.revokedMovesStorage.getLast());
+			Game.revokedMovesStorage.removeLast();
+			Game.boardState = Game.movesStorage.getLast();
+		}
+		else if (Game.gameMode == "human-computer") {
+			Game.movesStorage.add(Game.revokedMovesStorage.getLast());
+			Game.revokedMovesStorage.removeLast();
+			Game.movesStorage.add(Game.revokedMovesStorage.getLast());
+			Game.revokedMovesStorage.removeLast();
+			Game.boardState = Game.movesStorage.getLast();
+		}
+	}
+	
 	
 	static int[] transformDesignation(String pos) {
 		int xy[] = new int[2];
@@ -114,6 +147,23 @@ public class Movement {
 				//scan.close();
 				return;
 			}
+			else if (origin.equals("redo")) {
+				redo();
+				return;
+			}
+			else if (origin.equals("replay")) {
+				System.out.println("\nWould you like to watch the game record?");
+				System.out.println("Please answer 'yes' or 'not':");
+				String answer = scan.nextLine();
+				if (answer.equals("yes")) {
+					Game.replay();
+					System.out.println("\nWhich pawn do you want to move?");
+					try {
+						origin = scan.nextLine();
+					}
+					catch (Exception e) {}
+				}	
+			}
 		}
 		else if (Game.multipleJumpFlag == 1) {
 			origin += Game.multipleJumpPawnBuffor[0];
@@ -133,6 +183,24 @@ public class Movement {
 			undo();
 			return;
 		}
+		else if (origin.equals("redo")) {
+			redo();
+			return;
+		}
+		else if (origin.equals("replay")) {
+			System.out.println("\nWould you like to watch the game record?");
+			System.out.println("Please answer 'yes' or 'not':");
+			String answer = scan.nextLine();
+			if (answer.equals("yes")) {
+				Game.replay();
+				System.out.println("\nWhich pawn do you want to move?");
+				try {
+					origin = scan.nextLine();
+				}
+				catch (Exception e) {}
+			}	
+		}
+			
 		System.out.println("\n-------------------------");
 		
 		int xyA[] = new int[2];
@@ -164,6 +232,9 @@ public class Movement {
 			// The move is sent to the movesStorage.
 			storeMove();
 			
+			// Revoked moves storage is cleared (just in case)
+			Game.revokedMovesStorage.clear();
+			
 			// If it was a jump (an attack), then ask the player if he wants to continue jumping.
 			if (rightMove == 3) {
 				
@@ -177,7 +248,7 @@ public class Movement {
 					Game.multipleJumpPawnBuffor[0] = xyB[0];
 					Game.multipleJumpPawnBuffor[1] = xyB[1];
 			
-					Game.movesStorage.pop();
+					Game.movesStorage.removeLast();
 					playerAMove();
 				}
 			}			
@@ -201,6 +272,23 @@ public class Movement {
 				//scan.close();
 				return;
 			}
+			else if (origin.equals("redo")) {
+				redo();
+				return;
+			}
+			else if (origin.equals("replay")) {
+				System.out.println("\nWould you like to watch the game record?");
+				System.out.println("Please answer 'yes' or 'not':");
+				String answer = scan.nextLine();
+				if (answer.equals("yes")) {
+					Game.replay();
+					System.out.println("\nWhich pawn do you want to move?");
+					try {
+						origin = scan.nextLine();
+					}
+					catch (Exception e) {}
+				}	
+			}
 		}
 		else if (Game.multipleJumpFlag == 1) {
 			origin += Game.multipleJumpPawnBuffor[0];
@@ -215,6 +303,23 @@ public class Movement {
 		if (dest.equals("undo")) {
 			undo();
 			return;
+		}
+		else if (origin.equals("redo")) {
+			redo();
+			return;
+		}
+		else if (origin.equals("replay")) {
+			System.out.println("\nWould you like to watch the game record?");
+			System.out.println("Please answer 'yes' or 'not':");
+			String answer = scan.nextLine();
+			if (answer.equals("yes")) {
+				Game.replay();
+				System.out.println("\nWhich pawn do you want to move?");
+				try {
+					origin = scan.nextLine();
+				}
+				catch (Exception e) {}
+			}	
 		}
 		System.out.println("\n-------------------------");
 		
@@ -246,6 +351,9 @@ public class Movement {
 			// The move is sent to the movesStorage.
 			storeMove();
 			
+			// Revoked moves storage is cleared (just in case)
+			Game.revokedMovesStorage.clear();
+			
 			// If it was a jump (an attack), then ask the player if he wants to continue jumping.
 			if (rightMove == 3) {
 				
@@ -271,7 +379,7 @@ public class Movement {
 	
 	static void playerComputerMove() {
 		ComputerMove c = new ComputerMove();
-		
+	
 		int startPositionX = c.xyA[0];
 		int startPositionY = c.xyA[1];
 		int finalPositionX = -1;
@@ -308,14 +416,12 @@ public class Movement {
 		// If it's the last row, then a pawn (man) becomes a king.
 		if (finalPositionX == 7)
 			Game.boardState[finalPositionX][finalPositionY] = 2;
+		
+		// The move is sent to the movesStorage.
+		storeMove();
 	}
 	
 
-	static void undo() {
-		Game.movesStorage.removeLast();
-	    Game.boardState = Game.movesStorage.getLast();
-	    if (Game.gameMode == "human-computer")
-	    	playerAMove();
-	}
+	
 	
 }
