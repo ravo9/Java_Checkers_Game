@@ -10,6 +10,8 @@ public class ComputerMove {
 	public LinkedList<int[]> attackPath = new LinkedList<int[]>();
 	
 	int highestPotentialValue = 0;
+	
+	// Flags indicating move possibilities.
 	int rightMovePossible = 0;
 	int leftMovePossible = 0;
 	

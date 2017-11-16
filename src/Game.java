@@ -121,6 +121,7 @@ public class Game {
 	}
 	
 	
+	// A function that replays recorde game.
 	public static void replay() {
 		Scanner scan0 = new Scanner(System.in);
 		for (int i=0; i<Game.movesStorage.size(); i++) {
@@ -137,6 +138,6 @@ public class Game {
 	public static void main(String[] args) {
 		
 		gameMenu();
-		
+
 	}
 }

@@ -59,6 +59,7 @@ public class Board{
 		System.out.println(" A  B  C  D  E  F  G  H");
 	}
 	
+	
 	static String checkIfEnd() {
 		
 		int winnerA = 0;

@@ -2,7 +2,6 @@ import java.util.Scanner;
 
 public class Movement {
 	
-	
 	static void storeMove() {
 		int[][]stateCopy = new int[8][8];
 		for (int i = 0; i < 8; i++) 
@@ -420,8 +419,4 @@ public class Movement {
 		// The move is sent to the movesStorage.
 		storeMove();
 	}
-	
-
-	
-	
 }
